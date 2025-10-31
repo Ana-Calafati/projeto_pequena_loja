@@ -1,78 +1,90 @@
 import ttkbootstrap as ttk
 from tkinter import Listbox # Importar Listbox do tkinter (ttkbootstrap não tem Listbox estilizado)
-import tkinter.messagebox
+import tkinter.messagebox as messagebox
 import sqlite3
 
 class Pequena_Loja:
     def __init__(self):
-        # 1. Configuração da Janela
+        # Configuração da Janela
         self.menu_principal = ttk.Window(themename="darkly") 
         self.menu_principal.title("Catálogo de Inventário de Loja")
-        self.menu_principal.geometry("850x600")
+        self.menu_principal.geometry("900x1000")
+        input_frame = ttk.LabelFrame(self.menu_principal, text="Detalhes do Produto", padding=15)
+        input_frame.pack(padx=20, pady=10)
 
+        #criando com conteiner invisivel para colocar os dados
+        janela_principal = ttk.Frame(self.menu_principal)
+        janela_principal.pack(pady=10)
 
+        # Campo produto
+        ttk.Label(janela_principal, text="Produto:").pack()
+        self.nome_produto = ttk.Entry(janela_principal, width=20)
+        self.nome_produto.pack()
+
+        # Campo descrição do produto
+        ttk.Label(janela_principal, text="Descrição:").pack()
+        self.descricao_produto = ttk.Entry(janela_principal, width=20)
+        self.descricao_produto.pack()
+
+        # Campo quantidade
+        ttk.Label(janela_principal, text="Quantidade:").pack()
+        self.quantidade_estoque = ttk.Entry(janela_principal, width=20)
+        self.quantidade_estoque.pack()
+
+        # Campo preço
+        ttk.Label(janela_principal, text="Preço:").pack()
+        self.preco_produto= ttk.Entry(janela_principal, width=20)
+        self.preco_produto.pack()
+
+        # --- Treeview (Tabela) ---
+        self.treeview = ttk.Treeview()
+        self.treeview.pack()
+        self.treeview["show"] = "headings"
+
+        self.treeview["columns"] = ("ID", "Nome", "Descrição", "Estoque", "Preço")
+        # Configuração das colunas e cabeçalhos
+        self.treeview.heading("ID", text="ID", anchor=ttk.CENTER)
+        self.treeview.heading("Nome", text="Nome do Produto", anchor=ttk.CENTER)
+        self.treeview.heading("Descrição", text="Descrição", anchor=ttk.CENTER)
+        self.treeview.heading("Estoque", text="Estoque",anchor=ttk.CENTER)
+        self.treeview.heading("Preço", text="Preço (R$)",anchor=ttk.CENTER)
         
 
-    
-    def adicionar_dados(self):
-        id1 = self.proximo_id; self.proximo_id += 1
-        self.produtos.append({'id': id1, 'nome_produto': "Lightstick Da P1harmony",
-                                'descricao': "Para fãs do grupo de k-pop!", 
-                                'quantidade_stock': 15, 
-                                'preco_unitario': 120.50})
-        self.produtos.append({'id': id2, 'nome_produto': "Photocard Oficial New Jeans", 
-                              'descricao': "Estoque baixo! Atenção.", 
-                              'quantidade_stock': 5, 'preco_unitario': 15.00})
-    
-        self.carregar_produtos()
+        self.treeview.column("ID",width=200, anchor="center")
+        self.treeview.column("Nome",width=200, anchor="center")
+        self.treeview.column("Descrição",width=200, anchor="center")
+        self.treeview.column("Estoque",width=200, anchor="center")
+        self.treeview.column("Preço",width=200, anchor="center")
 
-        def criar_interface(self):
-            input_frame = ttk.LabelFrame(self.root, text="Detalhes do Produto", padding=15)
-            input_frame.pack(padx=20, pady=10)
-
-        # Labels e Entradas
-        campos = [
-            ("Nome do Produto:", "nome"),
-            ("Descrição:", "desc"),
-            ("Estoque (Qtd):", "stock"),
-            ("Preço Unitário:", "preco")
-        ]
-        
-        
-          
         # --- Frame de Botões ---
         botao_frame = ttk.Frame(self.menu_principal)
         botao_frame.pack(pady=10)
+        ttk.Button(botao_frame, text="Adicionar Produto",width=200).pack(side="left",pady=30,padx=20)
+        ttk.Button(botao_frame, text="Atualizar Produto",width=200).pack(pady=30,padx=20)
+        ttk.Button(botao_frame, text="Excluir Produto",width=200).pack(pady=30,padx=20)
+        ttk.Button(botao_frame, text="Limpar Campos",width=200).pack(pady=30, padx=20)
+        ttk.Button(botao_frame, text="Adicione as informações",width=200,command=self.adicionar_dados).pack(pady=30, padx=20)        
 
-        ttk.Button(botao_frame, text="Adicionar Produto", command=self.adicionar_produto).pack()
-        ttk.Button(botao_frame, text="Atualizar Produto", command=self.atualizar_produto_selecionado).pack()
-        ttk.Button(botao_frame, text="Excluir Produto", command=self.deletar_produto_selecionado).pack()
-        ttk.Button(botao_frame, text="Limpar Campos", command=self.limpar_campos).pack()
+    def adicionar_dados(self):
+    # pega os valores digitados nas caixinhas
+        produto = self.nome_produto.get()
+        descricao = self.descricao_produto.get()
+        quantidade = self.quantidade_estoque.get()
+        preco = self.preco_produto.get()
+        if not produto or not descricao or not quantidade or not preco:
+            messagebox.showwarning("Aviso", "Preencha todos os campos!")
+            return  # sai da função se algo estiver vazio
 
-        # --- Treeview (Tabela) ---
+    def apagar_item(self):
+        item_selecionado = self.treeview.selection()
+        self.treeview.delete(item_selecionado)
 
-        def apagar_item():
-            item_selecionado = treeview.selection()
-            treeview.delete(item_selecionado)
 
-        janela = ttk.Window(themename="minty")
 
-        treeview = ttk.Treeview(janela)
-        colunas = ("ID", "Nome", "Descrição", "Estoque", "Preço (R$)")
-        # Configuração das colunas e cabeçalhos
-        self.tree.heading("ID", text="ID"); self.tree.column("ID", width=50, anchor=ttk.CENTER)
-        self.tree.heading("Nome", text="Nome do Produto", width=150, anchor=ttk.CENTER)
-        self.tree.heading("Descrição", text="Descrição", width=300, anchor=ttk.CENTER)
-        self.tree.heading("Estoque", text="Estoque", width=80, anchor=ttk.CENTER)
-        self.tree.heading("Preço (R$)", text="Preço (R$)", width=100, anchor=ttk.CENTER)
-        
 
-        treeview.column("ID",width=200, anchor="center")
-        treeview.column("Nome",width=200, anchor="center")
-        treeview.column("Descrição",width=200, anchor="center")
-        treeview.column("Estoque",width=200, anchor="center")
-        treeview.column("Preço",width=200, anchor="center")
 
+    
+       
     def run(self):
       self.menu_principal.mainloop()
 
